@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,6 +64,29 @@ public class DojoNinjaController {
 		model.addAttribute("dojo", d);
 		model.addAttribute("ninjas", ninjas);
 		return "dojoninja/showdojo.jsp";
+	}
+	
+	@RequestMapping("dojosninjas")
+	public String showDojosNinjas(Model model) {
+		List<Object[]> table = serv.joinDojosNinjas();
+//		To unpackage data, cast each index of the array of objects to the expecting class. If using the query in view, JSP automatically casts the type for you
+//		for (Object[] row: table) {
+//			Dojo dojo = (Dojo) row[0];
+//			Ninja ninja = (Ninja) row[1];
+//		}
+		model.addAttribute("table", table);
+		return "dojoninja/dojosninjas.jsp";
+	}
+	
+	@RequestMapping("/pages/{pageNumber}")
+	public String getNinjasPerPage(Model model, @PathVariable("pageNumber") int pageNumber) {
+//		we have to subtract 1 because the Pages iterable is 0 indexed. This is for our links to be able to show from 1...pageMax, instead of 0...pageMax
+		Page<Ninja> ninjas = serv.ninjasPerPage(pageNumber - 1);
+//		total number of pages that we have
+		int totalPages = ninjas.getTotalPages();
+		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("ninjas", ninjas);
+		return "dojoninja/ninjapages.jsp";
 	}
 	
 }
